@@ -20,15 +20,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'o8n0l3!_64orbzj-^@dkqej($6ny5dtxlekumydw=33x63-ujc'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'o8n0l3!_64orbzj-^@dkqej($6ny5dtxlekumydw=33x63-ujc') 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
 ALLOWED_HOSTS = ['*', '0.0.0.0']
+ADMINS = [('Nhan', 'nhanparty@gmail.com')]
+SERVER_EMAIL = os.environ.get('EMAIL_HOST_USER', 'root@localhost')
 
-AUTH_API_URL = 'http://172.21.148.177:7000/auth'
-
+BASE_SERVER_URL = os.environ.get('BASE_SERVER_URL', 'http://127.0.0.1:8000/')
 # Application definition
 
 INSTALLED_APPS = [
@@ -155,5 +156,5 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIIL_PORT = 587
-EMAIL_HOST_USER = "feeder3003@gmail.com" 
-EMAIL_HOST_PASSWORD = "feeder123"
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')

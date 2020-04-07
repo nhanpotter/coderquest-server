@@ -18,6 +18,8 @@ from django.urls import path, include, re_path
 
 
 admin.site.site_header = 'CoderQuest Server'
+admin.site.site_title = "CoderQuest Admin Portal"
+admin.site.index_title = "Welcome to CoderQuest Admin Portal"
 
 urlpatterns = [
     path('admin/', admin.site.urls),

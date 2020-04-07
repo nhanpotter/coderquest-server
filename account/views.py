@@ -7,18 +7,18 @@ from rest_framework.response import Response
 from rest_framework import status
 
 # from requests_oauthlib import OAuth2Session
-from server.settings import AUTH_API_URL
+from server.settings import BASE_SERVER_URL
 from .serializers import AvatarSerializer
 
 # Create your views here.
 # Activation
 def account_activate(request, uid, token):
-    url = AUTH_API_URL + '/users/activation/'
+    url = BASE_SERVER_URL + 'auth/users/activation/'
     kwargs = {
         'uid': uid,
         'token': token,
     }
-    post_request = requests.post(url, data=kwargs)
+    requests.post(url, data=kwargs)
 
     return HttpResponse('Activation Successful')
 
