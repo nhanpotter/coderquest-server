@@ -1,9 +1,27 @@
 from django.contrib import admin
 from django.apps import apps
-from .models import *
+from .models import Course, Section, QuestionBank, Question
 # Register your models here.
 
-model_list = apps.get_app_config('course').get_models()
+admin.site.register(Course)
+admin.site.register(Section)
 
-for model in model_list:
-    admin.site.register(model)
+class OwnQuestionInline(admin.TabularInline):
+    model = Question.user_list.through
+    extra = 1
+# Note: OwnQuestionInline is added to UserAdmin in app 'game'
+
+class BankInline(admin.TabularInline):
+    model = QuestionBank.questions.through
+    extra = 1
+
+@admin.register(QuestionBank)
+class QuestionBankAdmin(admin.ModelAdmin):
+    inlines = (BankInline,)
+    exclude = ('question_list',)
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    inlines = (OwnQuestionInline,)
+    exclude = ('user_list',)
+

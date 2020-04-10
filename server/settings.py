@@ -44,8 +44,8 @@ INSTALLED_APPS = [
     'djoser',
     'testing',
     'account',
-    'game',
     'course',
+    'game',
     'analytics'
 ]
 

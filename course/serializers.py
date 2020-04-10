@@ -17,7 +17,7 @@ class SectionSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = '__all__'
+        exclude = ['user_list']
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

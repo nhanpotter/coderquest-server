@@ -27,6 +27,7 @@ urlpatterns = [
     path('account/', include('account.urls')),
     path('game/', include('game.urls')),
     path('course/', include('course.urls')),
+    path('analytics/', include('analytics.urls')),
     re_path(r'^auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.authtoken')),
 ]

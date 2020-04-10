@@ -59,8 +59,8 @@ class OwnQuestionBankUpdateDeleteView(APIView):
 
 class OwnQuestionListView(APIView):
     def get(self, request, format=None):
-        object_list = OwnQuestionList.objects.filter(user=request.user)
-        questions = list(map(lambda obj: obj.question, object_list))
+        user = request.user
+        questions = user.question_list.all()
 
         serializer = QuestionSerializer(questions, many=True)
 
@@ -71,6 +71,6 @@ class OwnQuestionListView(APIView):
         if serializer.is_valid():
             questions = serializer.validated_data['questions']
             for question in questions:
-                OwnQuestionList.objects.create(user=request.user, question=question)
+                question.user_list.add(request.user)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

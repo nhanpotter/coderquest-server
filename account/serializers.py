@@ -18,6 +18,7 @@ class ActiveUserSerializer(UserSerializer):
 
 class AvatarSerializer(serializers.ModelSerializer):
     gender = serializers.IntegerField(min_value=1, max_value=2, required=False)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Avatar

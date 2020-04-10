@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 from course.models import Course, Section, QuestionBank
 
@@ -27,11 +26,22 @@ class Expedition(models.Model):
 
 
 class World(models.Model):
-    background_type = models.IntegerField()   
+    BACKGROUND_CHOICES = [
+        (1, 1),
+        (2, 2),
+        (3, 3),
+    ]
+    background_type = models.IntegerField(choices=BACKGROUND_CHOICES)   
 
     # Mapping
     expedition = models.ForeignKey(Expedition, on_delete=models.CASCADE)
     section = models.OneToOneField(Section, on_delete=models.CASCADE)
+    user_history = models.ManyToManyField(
+        User, 
+        through='game.User_World',
+        through_fields=('world', 'user'),
+        related_name='world_history',
+    )
 
     def __str__(self):
         return 'Expedition:({0}) Section:({1})'.format(str(self.expedition), str(self.section))
@@ -49,47 +59,21 @@ class User_World(models.Model):
     """
     Table to keep track history whether user has finished the world or not
     """
-    is_finished = models.BooleanField()
     # Mapping
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     world = models.ForeignKey(World, on_delete=models.CASCADE)
 
-@receiver(post_save, sender=User)
-def create_user_world_history_for_new_user(sender, **kwargs):
-    user = kwargs['instance']
-    created = kwargs['created']
-    if not created:
-        return
+    #Attribute
+    is_finished = models.BooleanField()
 
-    if not user.is_staff:
-        world_list = World.objects.all()
-        if len(world_list) != 0:
-            for world in world_list:
-                User_World.objects.create(
-                    user=user,
-                    world=world,
-                    is_finished=False
-                )
 
-@receiver(post_save, sender=World)
-def create_user_world_history_for_new_world(sender, **kwargs):
-    world = kwargs['instance']
-    created = kwargs['created']
-    if not created:
-        return
-
-    user_list = User.objects.filter(is_staff=False)
-    for user in user_list:
-        User_World.objects.create(
-            user=user,
-            world=world,
-            is_finished=False
-        )
 
 class NPCAvatar(models.Model):
+    NPC_CHOICES = [(i+1,i+1) for i in range(5)]
+
     hp = models.IntegerField()
     attack = models.IntegerField()
-    npc_type = models.IntegerField()
+    npc_type = models.IntegerField(choices=NPC_CHOICES)
 
     def __str__(self):
         return 'HP:{0}-Attack:{1}-Type:{2}'.format(self.hp, self.attack, self.npc_type)
@@ -104,12 +88,35 @@ class NPCShop(models.Model):
 
 
 class NPC(models.Model):
-    pos_X = models.IntegerField()
-    pos_Y = models.IntegerField()
+    pos_X = models.DecimalField(
+        max_digits=4, 
+        decimal_places=3,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(1)
+        ]
+    )
+    pos_Y = models.DecimalField(
+        max_digits=4, 
+        decimal_places=3,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(1)
+        ]
+    )
+    boss = models.BooleanField(default=False)
+    experience = models.IntegerField()
+    gold = models.IntegerField()
     #Mapping
     npc_avatar = models.ForeignKey(NPCAvatar, on_delete=models.CASCADE)
     world = models.ForeignKey(World, on_delete=models.CASCADE)
     question_bank = models.ForeignKey(QuestionBank, on_delete=models.CASCADE)
+    user_history = models.ManyToManyField(
+        User,
+        through='game.User_NPC',
+        through_fields=('npc', 'user'),
+        related_name='npc_history',
+    )
 
     def __str__(self):
         return 'NPC:{0}-World:({1})'.format(self.id, str(self.world))
@@ -124,50 +131,19 @@ class User_NPC(models.Model):
     Table to keep track history whether user has defeated the NPC or not
     TODO: When update this table, check and update User_World is_finished
     """
-    is_defeated = models.BooleanField()
     # Mapping
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     npc = models.ForeignKey(NPC, on_delete=models.CASCADE)
 
-
-@receiver(post_save, sender=User)
-def create_user_NPC_history_for_new_user(sender, **kwargs):
-    user = kwargs['instance']
-    created = kwargs['created']
-    if not created:
-        return
-
-    if not user.is_staff:
-        npc_list = NPC.objects.all()
-        if (len(npc_list)!=0):
-            for npc in npc_list:
-                User_NPC.objects.create(
-                    is_defeated=False,
-                    user=user,
-                    npc=npc
-                )
-
-@receiver(post_save, sender=NPC)
-def create_user_NPC_history_for_new_NPC(sender, **kwargs):
-    npc = kwargs['instance']
-    created = kwargs['created']
-    if not created:
-        return
-        
-    user_list = User.objects.filter(is_staff=False)
-    for user in user_list:
-        User_NPC.objects.create(
-            user=user,
-            npc=npc,
-            is_defeated=False
-        )
+    # Attribute
+    is_defeated = models.BooleanField()
 
 
 # User Customize
 
 class CustomWorld(models.Model):
     description = models.CharField(max_length=255)
-    background_type = models.IntegerField()
+    background_type = models.IntegerField(choices=World.BACKGROUND_CHOICES)
     # Mapping
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
