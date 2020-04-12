@@ -21,23 +21,15 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['options'] = []
-        ret['options'].append({
-            'description': ret.pop('option1'),
-            'option': 1,
-        })
-        ret['options'].append({
-            'description': ret.pop('option2'),
-            'option': 2,
-        })
-        ret['options'].append({
-            'description': ret.pop('option3'),
-            'option': 3,
-        })
-        ret['options'].append({
-            'description': ret.pop('option4'),
-            'option': 4,
-        })
+        ret['question_id'] = ret.pop('id')
+        ret['a1'] = ret.pop('option1')
+        ret['a2'] = ret.pop('option2')
+        ret['a3'] = ret.pop('option3')
+        ret['a4'] = ret.pop('option4')
+        
+        answer_str = 'a' + str(instance.answer)
+        ret['answer'] = ret[answer_str]        
+        
         return ret
 
 

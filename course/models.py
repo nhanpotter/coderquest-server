@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.constraints import UniqueConstraint
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 from django.contrib.auth import get_user_model
@@ -19,12 +21,21 @@ class Course(models.Model):
 
 
 class Section(models.Model):
-    level = models.IntegerField()
+    # Mapping
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    level = models.IntegerField(validators=[MinValueValidator(1)])
     topic = models.CharField(max_length=255)
     description = models.TextField()
 
-    # Mapping
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=['level', 'course'],
+                name='unique_level_for_course',
+            )
+        ]
 
     def __str__(self):
         return '{0}-Lv:{1}-Topic:{2}'.format(self.course.course_code, self.level, self.topic)

@@ -31,8 +31,6 @@ class World(models.Model):
         (2, 2),
         (3, 3),
     ]
-    background_type = models.IntegerField(choices=BACKGROUND_CHOICES)   
-
     # Mapping
     expedition = models.ForeignKey(Expedition, on_delete=models.CASCADE)
     section = models.OneToOneField(Section, on_delete=models.CASCADE)
@@ -42,6 +40,10 @@ class World(models.Model):
         through_fields=('world', 'user'),
         related_name='world_history',
     )
+
+    # Attribute
+    background_type = models.IntegerField(choices=BACKGROUND_CHOICES)   
+
 
     def __str__(self):
         return 'Expedition:({0}) Section:({1})'.format(str(self.expedition), str(self.section))
