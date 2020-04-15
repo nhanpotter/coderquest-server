@@ -18,7 +18,7 @@ class BankInline(admin.TabularInline):
 @admin.register(QuestionBank)
 class QuestionBankAdmin(admin.ModelAdmin):
     inlines = (BankInline,)
-    exclude = ('question_list',)
+    exclude = ('questions',)
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):

@@ -62,7 +62,8 @@ def create_user_NPC_history_for_new_NPC(sender, **kwargs):
     created = kwargs['created']
     if not created:
         return
-        
+    
+    world = npc.world
     user_list = User.objects.filter(is_staff=False)
     for user in user_list:
         User_NPC.objects.create(
@@ -70,3 +71,32 @@ def create_user_NPC_history_for_new_NPC(sender, **kwargs):
             npc=npc,
             is_defeated=False
         )
+        user_world = User_World.objects.get(user=user, world=world)
+        if user_world.is_finished:
+            user_world.is_finished = False
+            user_world.save()
+
+
+@receiver(post_save, sender=User_NPC)
+def check_User_World_when_User_NPC_updated(sender, **kwargs):
+    user_npc = kwargs['instance']
+    created = kwargs['created']
+    if created:
+        # If newly created, don't need to check
+        return
+
+    user = user_npc.user
+    world = user_npc.npc.world
+
+    is_finished = True
+    user_npc_history = User_NPC.objects.filter(user=user, npc__world=world)
+
+    for history in user_npc_history:
+        is_finished = history.is_defeated
+        if not is_finished:
+            break
+
+    if is_finished:
+        user_world = User_World.objects.get(user=user, world=world)
+        user_world.is_finished = True
+        user_world.save()
