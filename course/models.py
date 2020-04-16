@@ -77,10 +77,10 @@ class Question(models.Model):
     user_list = models.ManyToManyField(User, related_name='question_list', blank=True)
 
     def __str__(self):
-        return 'ID:{0}-Sect:({1})-Question:{2}'.format(self.id, str(self.section), self.name)
+        return 'Sect:({1})-ID:{0}-Question:{2}'.format(self.id, str(self.section), self.name)
 
     def __unicode__(self):
-        return 'ID:{0}-Sect:({1})-Question:{2}'.format(self.id, str(self.section), self.name)
+        return 'Sect:({1})-ID:{0}-Question:{2}'.format(self.id, str(self.section), self.name)
 
 
 
