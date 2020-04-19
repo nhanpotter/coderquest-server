@@ -52,7 +52,7 @@ class Expedition(models.Model):
         history = History.objects.filter(question__section__course=self.course)
         if not history.exists():
             return "N.A"
-            
+
         correct = history.filter(correct=True)
 
         percentage = round(len(correct)/len(history)*100,2)
@@ -110,8 +110,9 @@ class World(models.Model):
             if User_NPC.objects.filter(user=item.user, npc__world=self, is_defeated=True).exists():
                 doing_number += 1
 
-        done_number = len(history)
-        not_started_number = done_number - doing_number
+        total = len(history)
+        done_number = total - len(undone_list)
+        not_started_number = total - done_number - doing_number
         return {
             'done': done_number,
             'doing': doing_number,
