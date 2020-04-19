@@ -9,6 +9,7 @@ User = get_user_model()
 class History(models.Model):
     time = models.DateTimeField()
     choice = models.IntegerField(choices=Question.ANSWER_CHOICES)
+    correct = models.BooleanField()
 
     # Mapping
     user = models.ForeignKey(User, on_delete=models.CASCADE)

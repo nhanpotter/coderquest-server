@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 from course.models import Course, Section, QuestionBank
-
+from analytics.models import History
 User = get_user_model()
 
 class Expedition(models.Model):
@@ -24,6 +24,39 @@ class Expedition(models.Model):
     
     worlds = property(get_worlds)
 
+    def get_number_students_finished(self):
+        user_list = User.objects.filter(is_staff=False)
+        count = 0
+        for user in user_list:
+            unfinished = User_World.objects.filter(
+                user=user, world__expedition=self, is_finished=False
+            )
+            if not unfinished.exists():
+                count += 1
+
+        return count
+
+    def get_complete_percentage(self):
+        history = User_World.objects.all()
+        if not history.exists():
+            return "N.A"
+
+        unfinished = history.filter(
+            world__expedition=self, is_finished=False
+        )
+
+        percentage = round((1-len(unfinished)/len(history))*100,2)
+        return str(percentage)+"%"
+
+    def get_correct_percentage(self):
+        history = History.objects.filter(question__section__course=self.course)
+        if not history.exists():
+            return "N.A"
+            
+        correct = history.filter(correct=True)
+
+        percentage = round(len(correct)/len(history)*100,2)
+        return str(percentage)+"%"
 
 class World(models.Model):
     BACKGROUND_CHOICES = [
@@ -51,10 +84,56 @@ class World(models.Model):
     def __unicode__(self):
         return 'Expedition:({0}) Section:({1})'.format(str(self.expedition), str(self.section))
 
+    def get_html_id(self):
+        return "world-{}".format(self.id)
+
+    def get_html_id_portion(self):
+        return "world-{}-portion".format(self.id)
+
+    def get_html_id_correct(self):
+        return "world-{}-correct".format(self.id)
+
     def get_npcs(self):
         return self.npc_set.all()
 
     npcs = property(get_npcs)
+
+    def get_questions_sorted_by_difficulty(self):
+        return self.section.get_questions_sorted_by_difficulty()
+
+    def get_student_portion(self):
+        history = User_World.objects.filter(world=self)
+        undone_list = history.filter(is_finished=False)
+        
+        doing_number = 0
+        for item in undone_list:
+            if User_NPC.objects.filter(user=item.user, npc__world=self, is_defeated=True).exists():
+                doing_number += 1
+
+        done_number = len(history)
+        not_started_number = done_number - doing_number
+        return {
+            'done': done_number,
+            'doing': doing_number,
+            'not': not_started_number,
+        }
+
+    def get_correct_percentage(self):
+        history = History.objects.filter(question__section=self.section)
+        if not history.exists():
+            return {
+                'correct': 0,
+                'incorrect': 100,
+            }
+
+        correct_list = history.filter(correct=True)
+
+        correct = round(len(correct_list)/len(history) * 100, 2)
+        incorrect = round(100-correct, 2)
+        return {
+            'correct': correct,
+            'incorrect': incorrect,
+        }
 
 
 class User_World(models.Model):

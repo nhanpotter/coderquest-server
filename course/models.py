@@ -4,6 +4,8 @@ from django.core.validators import MinValueValidator
 
 # Create your models here.
 from django.contrib.auth import get_user_model
+
+import json
 # Create your models here.
 
 User = get_user_model()
@@ -42,8 +44,13 @@ class Section(models.Model):
 
     def __unicode__(self):
         return '{0}-Lv:{1}-Topic:{2}'.format(self.course.course_code, self.level, self.topic)
-    
 
+    def get_questions(self):
+        return self.question_set.all()
+
+    def get_questions_sorted_by_difficulty(self):
+        return self.get_questions().order_by('difficulty')
+    
 
 class Question(models.Model):
     DIFFICULTY_CHOICES = [
@@ -82,6 +89,17 @@ class Question(models.Model):
     def __unicode__(self):
         return 'Sect:({1})-ID:{0}-Question:{2}'.format(self.id, str(self.section), self.name)
 
+    def get_difficulty_string(self):
+        return Question.DIFFICULTY_CHOICES[self.difficulty-1][1]
+
+    def get_correct_percentage(self):
+        history_list = self.history_set.all()
+
+        if len(history_list) == 0:
+            return "No Attempt Recorded"
+        
+        correct_list = history_list.filter(correct=True)
+        return str(round(len(correct_list) / len(history_list) * 100, 2)) + "%"
 
 
 

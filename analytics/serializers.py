@@ -10,6 +10,8 @@ class HistorySerializer(serializers.Serializer):
 
     def create(self, validated_data):
         validated_data['time'] = timezone.now()
+        question = validated_data['question']
+        validated_data['correct'] = (validated_data['choice'] == question.answer)
         created = History(**validated_data)
         created.save()
         return created
