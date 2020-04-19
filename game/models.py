@@ -37,12 +37,12 @@ class Expedition(models.Model):
         return count
 
     def get_complete_percentage(self):
-        history = User_World.objects.all()
+        history = User_World.objects.filter(world__expedition=self)
         if not history.exists():
             return "N.A"
 
         unfinished = history.filter(
-            world__expedition=self, is_finished=False
+            is_finished=False
         )
 
         percentage = round((1-len(unfinished)/len(history))*100,2)
