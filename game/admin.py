@@ -31,17 +31,17 @@ class User_WorldInline(admin.TabularInline):
 
 @admin.register(World)
 class WorldAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'show_image',)
-    readonly_fields = ('show_image',)
+    # list_display = ('__str__', 'show_image',)
+    # readonly_fields = ('show_image',)
     inlines = (
         NPCInline,
         User_WorldInline,
     )
 
-    def show_image(self, instance):
-        # url = "<a href=\"javascript:window.open('#', 'World ID {0}', 'width=800,height=450');\" >Show Image</a>".format(instance.id)
-        # return mark_safe(url)\
-        return type(instance)
+    # def show_image(self, instance):
+    #     # url = "<a href=\"javascript:window.open('#', 'World ID {0}', 'width=800,height=450');\" >Show Image</a>".format(instance.id)
+    #     # return mark_safe(url)\
+    #     return type(instance)
 
 class User_NPCInline(admin.TabularInline):
     model = User_NPC
