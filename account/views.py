@@ -55,7 +55,7 @@ class AvatarView(APIView):
 
 class LeaderboardView(APIView):
     def get(self, request, format=None):
-        avatar_list = Avatar.objects.order_by('-experience')
+        avatar_list = Avatar.objects.order_by('-level', '-experience')
         serializer = AvatarSerializer(avatar_list, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
