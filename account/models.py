@@ -56,6 +56,6 @@ class Avatar(models.Model):
         Make sure if user is the owner of the clan, he is also the member of the clan
         """
         if self.clan_owner is not None:
-            self.clan = clan_owner
+            self.clan = self.clan_owner
             self.save()
 

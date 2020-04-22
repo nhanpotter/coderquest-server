@@ -22,6 +22,7 @@ admin.site.site_title = "CoderQuest Admin Portal"
 admin.site.index_title = "Welcome to CoderQuest Admin Portal"
 
 urlpatterns = [
+    path('', include('main.urls')),
     path('admin/', admin.site.urls),
     path('testing/', include('testing.urls')),
     path('account/', include('account.urls')),
