@@ -2,10 +2,24 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import World, NPC, User_NPC, User_World
+from functools import wraps
 
 User = get_user_model()
 
+def disable_for_loaddata(signal_handler):
+    """
+    Decorator that turns off signal handlers when loading fixture data.
+    """
+    @wraps(signal_handler)
+    def wrapper(*args, **kwargs):
+        if kwargs['raw']:
+            return
+        signal_handler(*args, **kwargs)
+    return wrapper
+
+
 @receiver(post_save, sender=User)
+@disable_for_loaddata
 def create_user_world_history_for_new_user(sender, **kwargs):
     user = kwargs['instance']
     created = kwargs['created']
@@ -24,6 +38,7 @@ def create_user_world_history_for_new_user(sender, **kwargs):
 
 
 @receiver(post_save, sender=World)
+@disable_for_loaddata
 def create_user_world_history_for_new_world(sender, **kwargs):
     world = kwargs['instance']
     created = kwargs['created']
@@ -40,6 +55,7 @@ def create_user_world_history_for_new_world(sender, **kwargs):
 
 
 @receiver(post_save, sender=User)
+@disable_for_loaddata
 def create_user_NPC_history_for_new_user(sender, **kwargs):
     user = kwargs['instance']
     created = kwargs['created']
@@ -57,6 +73,7 @@ def create_user_NPC_history_for_new_user(sender, **kwargs):
                 )
 
 @receiver(post_save, sender=NPC)
+@disable_for_loaddata
 def create_user_NPC_history_for_new_NPC(sender, **kwargs):
     npc = kwargs['instance']
     created = kwargs['created']
@@ -78,6 +95,7 @@ def create_user_NPC_history_for_new_NPC(sender, **kwargs):
 
 
 @receiver(post_save, sender=User_NPC)
+@disable_for_loaddata
 def check_User_World_when_User_NPC_updated(sender, **kwargs):
     user_npc = kwargs['instance']
     created = kwargs['created']
