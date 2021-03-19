@@ -6,7 +6,7 @@ ConfigArgParse==1.2.2
 dj-database-url==0.5.0
 Django==2.2
 django-templated-mail==1.1.1
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 djoser==2.0.3
 Flask==1.1.2
 gevent==1.5a3
